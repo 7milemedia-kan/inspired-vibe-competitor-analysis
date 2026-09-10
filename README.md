@@ -43,11 +43,11 @@ npm run build
 npm start
 ```
 
-The production build emits the React frontend in `dist/public` and the Express server in `dist/index.cjs`. Production session cookies require HTTPS. SQLite data is stored in `data.db`; persistent hosting must retain the database and its sidecars. Admin sessions are in memory and are reset when the server restarts.
+The production build emits the React frontend in `dist/public` and the Express server in `dist/index.cjs`. Production session cookies require HTTPS. Without DATABASE_URL, local SQLite data is stored in `data.db` and admin sessions are in memory. Hosted PostgreSQL persists both records and sessions.
 
 ## Hosting and embedding
 
-This repository contains a Node/Express application with native SQLite. It is not a static-only website, and uploading the frontend alone does not provide the assessment API. Vercel or Cloudflare Workers deployment requires adapting persistence and runtime configuration. Publishing this repository does not itself deploy the app to a public web address.
+This repository contains a Node/Express application and a Vercel serverless entry point. The frontend and assessment API must be deployed together. Hosted persistence requires PostgreSQL; see the Vercel configuration below.
 
 After deploying the complete application to a compatible HTTPS host and allowing your parent website to frame it:
 
@@ -71,3 +71,16 @@ After deploying the complete application to a compatible HTTPS host and allowing
 - `shared/impact-model.ts`: revenue scenario formulas.
 
 See `ASSESSMENT-UPGRADE.md` and `PODCAST-FOUNDER-UPDATE.md` for implementation and validation notes. The original six-pillar weights remain; no special score overrides exist for benchmark brands.
+
+## Vercel deployment
+
+The Vercel project is `7-mile-media/inspired-vibe-competitor-analysis` and deploys this repository. `api/index.ts` serves the Express API; Vite outputs the frontend to `dist/public`. Node 22 and a 300-second function budget are configured.
+
+Production requires `DATABASE_URL` and `SESSION_SECRET`. Set `ADMIN_KEY` (at least 12 characters) to enable the protected lead dashboard. All three are server-side secrets; never prefix them with `VITE_` or commit environment files.
+
+The hosted app uses PostgreSQL for scans, leads and admin sessions. Dedicated `iv_competitor_*` tables are created automatically. Local development without `DATABASE_URL` continues to use SQLite. Existing local SQLite records are not uploaded automatically. The assessment does not call an AI API or use ChatGPT account tokens.
+
+Run `npm run check`, `npm run test:assessment`, and `npm run build` before deploying. To verify hosted persistence against a configured database, run `node --import tsx --test server/storage-postgres.test.ts` with `DATABASE_URL` set. The test removes only its own fixtures.
+
+In-memory scan caches and login throttles are per function instance; cache misses may repeat a scan. Admin sessions persist in PostgreSQL. Social sites can still block cloud crawlers, in which case metrics remain unverified rather than invented.
+

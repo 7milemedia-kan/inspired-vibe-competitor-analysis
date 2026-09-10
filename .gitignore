@@ -16,3 +16,7 @@ data.db*
 .runtime/
 brand-reference/
 verification/
+
+.vercel/
+.vercel
+.env*
