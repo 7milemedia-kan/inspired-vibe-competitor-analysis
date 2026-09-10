@@ -74,7 +74,7 @@ See `ASSESSMENT-UPGRADE.md` and `PODCAST-FOUNDER-UPDATE.md` for implementation a
 
 ## Vercel deployment
 
-The Vercel project is `7-mile-media/inspired-vibe-competitor-analysis` and deploys this repository. `api/index.cjs` serves the Express API; Vite outputs the frontend to `dist/public`. Node 22 and a 300-second function budget are configured.
+The Vercel project is `7-mile-media/inspired-vibe-competitor-analysis` and deploys this repository. `api/index.js` serves the Express API; Vite outputs the frontend to `dist/public`. Node 22 and a 300-second function budget are configured.
 
 Production requires `DATABASE_URL` and `SESSION_SECRET`. Set `ADMIN_KEY` (at least 12 characters) to enable the protected lead dashboard. All three are server-side secrets; never prefix them with `VITE_` or commit environment files.
 
@@ -83,5 +83,6 @@ The hosted app uses PostgreSQL for scans, leads and admin sessions. Dedicated `i
 Run `npm run check`, `npm run test:assessment`, and `npm run build` before deploying. To verify hosted persistence against a configured database, run `node --import tsx --test server/storage-postgres.test.ts` with `DATABASE_URL` set. The test removes only its own fixtures.
 
 In-memory scan caches and login throttles are per function instance; cache misses may repeat a scan. Admin sessions persist in PostgreSQL. Social sites can still block cloud crawlers, in which case metrics remain unverified rather than invented.
+
 
 
