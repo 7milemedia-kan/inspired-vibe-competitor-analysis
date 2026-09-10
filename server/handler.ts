@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { createApp } from '../server/app';
+import { createApp } from './app';
 
 let initialized: ReturnType<typeof createApp> | undefined;
 export default async function handler(req: Request, res: Response) {
@@ -10,3 +10,4 @@ export default async function handler(req: Request, res: Response) {
   const { app } = await initialized;
   return app(req, res);
 }
+

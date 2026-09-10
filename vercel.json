@@ -1,8 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "npx vite build",
+  "buildCommand": "npx tsx script/vercel-build.ts",
   "outputDirectory": "dist/public",
-  "functions": { "api/index.ts": { "maxDuration": 300 } },
+  "functions": { "api/index.cjs": { "maxDuration": 300 } },
   "rewrites": [{ "source": "/api/:path*", "destination": "/api" }]
 }
+
