@@ -4,7 +4,8 @@ A competitor authority assessment with Inspired Vibe branding, a six-signal scor
 
 ## Features
 
-- Required competitor website plus optional Instagram, YouTube, TikTok, podcast URL, and founder name.
+- Two required inputs: your website and a competitor website. Both use the same existing six-signal assessment and appear side by side with weighted points, evidence and information limits.
+- Public social and content links are discovered from the websites; no manual social, podcast, or founder inputs are required. Unavailable evidence remains unverified.
 - Bounded discovery of relevant company, leadership, media, training, content, and podcast pages.
 - Public profile counters where extractable; missing metrics are unknown rather than zero.
 - Source links, evidence notes, provisional scores, and user-supplied link attribution.

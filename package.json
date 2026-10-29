@@ -8,7 +8,7 @@
     "build": "tsx script/build.ts",
     "start": "node script/run.mjs production",
     "check": "tsc",
-    "test:assessment": "node --import tsx --test server/discovery.test.ts server/supplemental.test.ts",
+    "test:assessment": "node --import tsx --test server/discovery.test.ts server/supplemental.test.ts server/website-assessment.test.ts server/competitive-profile.test.tsx server/competitive-results.test.tsx",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {

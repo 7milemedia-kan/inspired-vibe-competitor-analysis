@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { TIERS, tierFor, type TierName } from "@shared/impact-model";
 
