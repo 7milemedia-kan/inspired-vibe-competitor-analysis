@@ -74,12 +74,12 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
       <section className="mx-auto max-w-6xl px-6 py-10 sm:px-10 sm:py-14">
         <h2 className="text-lg font-semibold">Start with both websites.</h2>
         <p className="mt-2 text-sm text-slate-500">Only the two website fields are required.</p>
-        <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-16">
+        <div data-testid="website-input-sections" className="mt-10 grid grid-cols-1 gap-10 md:gap-16">
           <section className="flex flex-col border-t-[3px] pt-5" style={{ borderColor: navy }}>
             <h3 className="text-3xl font-bold uppercase" style={heading}>Your company</h3>
             <p className="mt-4 font-semibold">Show us where buyers can find you.</p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">Enter your company’s website.</p>
-            <div className="mt-7 md:mt-auto md:pt-9">
+            <div className="mt-7">
               <label htmlFor="profile-own-url" className="text-sm font-semibold">Your Company’s Website <span className="text-red-600" aria-hidden="true">*</span></label>
               <input id="profile-own-url" name="ownUrl" data-testid="input-own-url" type="text" inputMode="url" autoComplete="url" required maxLength={300} value={ownUrl} onChange={e => onOwnUrlChange(e.target.value)} placeholder="Your company website" aria-describedby="profile-own-help" className={inputClass} />
               <p id="profile-own-help" className="mt-3 text-xs leading-relaxed text-slate-500">Use the main website buyers visit to learn about your business and your approach.</p>
