@@ -11,7 +11,7 @@ export type EvidenceFetch = (url: string, timeoutMs: number) => Promise<{ok:bool
 export type RetrievalOutcome = 'read'|'http-error'|'fetch-error'|'insufficient-text'|'offsite-redirect'|'access-challenge';
 export type EvidenceSource = {id:string; url:string; finalUrl:string; retrievedAt:string; outcome:RetrievalOutcome; httpStatus:number|null; textHash:string|null; discoveredFrom:string|null};
 export type EvidenceObservation = {id:string; sourceId:string; kind:'page-topic'|'linked-profile'; value:string; excerpt:string; locator:string; attribution:'company-page'|'ownership-unverified'; status:'observed'; extractorVersion:'discovery-v1'};
-export type EvidenceDiscoveryResult = {sources:EvidenceSource[]; observations:EvidenceObservation[]; profileCandidates:{url:string; platform:string; sourceIds:string[]; ownership:'unverified'}[]; coverage:{pagesRead:number; requests:number; queuedRemaining:number; complete:boolean; stoppedBy:'queue-exhausted'|'request-budget'|'time-budget'; meaning:string}};
+export type EvidenceDiscoveryResult = {sources:EvidenceSource[]; observations:EvidenceObservation[]; profileCandidates:{url:string; platform:string; sourceIds:string[]; ownership:'unverified'}[]; coverage:{pagesRead:number; requests:number; queuedRemaining:number; complete:boolean; stoppedBy:'queue-exhausted'|'request-budget'|'time-budget'|'access-challenge'; meaning:string}};
 const topic = /\b(work|campaigns?|clients?|customers?|case studies|case study|recognition|awards?|events?|press|news|newsroom|insights?|research|blog|articles?|resources?|leadership|founders?|team|about|podcasts?|episodes?|videos?|webinars?|stories|impact|publications?)\b/i;
 const excluded = /(?:^|\/)(?:logout|signout|unsubscribe|delete|checkout|cart|submit|intake|contact|login|signin|signup|register|request|thank-you)(?:\/|$)|\.(?:pdf|png|jpe?g|svg|zip|mp4|woff2?)$/i;
 const id = (value:string) => createHash('sha256').update(value).digest('hex').slice(0,24);
@@ -35,7 +35,7 @@ export async function discoverEvidence(base:string, fetchPage:EvidenceFetch, opt
  for(const url of (options.sitemapUrls??[]).slice(0,2500)) offer(url,null);
  const sources:EvidenceSource[]=[],observations:EvidenceObservation[]=[];
  const profiles=new Map<string,{url:string;platform:string;sourceIds:string[];ownership:'unverified'}>();
- let requests=0;
+ let requests=0, blockedByChallenge=false;
  while(queue.length&&requests<maxRequests&&now()-start<duration){
   queue.sort((a,b)=>Number(a.from===null)-Number(b.from===null));
   const item=queue.shift()!;queued.delete(item.url);seen.add(item.url);requests++;
@@ -47,6 +47,7 @@ export async function discoverEvidence(base:string, fetchPage:EvidenceFetch, opt
   try { const publicUrl=new URL(finalUrl);publicUrl.username='';publicUrl.password='';publicUrl.search='';publicUrl.hash='';finalUrl=publicUrl.href;}catch{finalUrl=item.url;}
   const text=outcome==='read'?readableText(body):'';
   sources.push({id:sourceId,url:item.url,finalUrl,retrievedAt:new Date(now()).toISOString(),outcome,httpStatus,textHash:text?id(text):null,discoveredFrom:item.from});
+  if(outcome==='access-challenge'){blockedByChallenge=true;break;}
   if(outcome!=='read')continue;
   // A topic excerpt establishes only that text appears on this company page, not the claim's truth.
   const contentText=readableText(body.replace(/<(nav|header|footer)\b[^>]*>[\s\S]*?<\/\1>/gi,''));
@@ -64,6 +65,6 @@ export async function discoverEvidence(base:string, fetchPage:EvidenceFetch, opt
    }
   }
  }
- const stoppedBy=!queue.length?'queue-exhausted':requests>=maxRequests?'request-budget':'time-budget';
+ const stoppedBy=blockedByChallenge?'access-challenge':!queue.length?'queue-exhausted':requests>=maxRequests?'request-budget':'time-budget';
  return {sources,observations,profileCandidates:[...profiles.values()],coverage:{pagesRead:sources.filter(x=>x.outcome==='read').length,requests,queuedRemaining:queue.length,complete:!queue.length&&sources.every(x=>x.outcome==='read'),stoppedBy,meaning:'Completeness covers this discovered queue only, not the entire website or market; missing observations never establish absence.'}};
 }

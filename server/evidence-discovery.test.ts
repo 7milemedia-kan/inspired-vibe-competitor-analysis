@@ -51,3 +51,7 @@ test('redirect query and credentials are not retained in trace metadata',async()
 test('navigation discovery is considered before broad sitemap inventory',async()=>{
  const calls:string[]=[];await discoverEvidence('https://brand.test',fetcher({'https://brand.test':filler+'<a href="/work">Work</a>','https://brand.test/work':filler},calls),{maxRequests:2,sitemapUrls:['https://brand.test/blog/old-article']});assert.deepEqual(calls,['https://brand.test','https://brand.test/work']);
 });
+
+test('site challenge stops queued sitemap and alternate-page requests',async()=>{
+ let calls=0;const r=await discoverEvidence('https://brand.test',async url=>{calls++;return {ok:true,status:200,body:'<form id="challenge-form">'+filler+'</form>',finalUrl:url};},{sitemapUrls:['https://brand.test/work','https://brand.test/awards']});assert.equal(calls,1);assert.equal(r.coverage.stoppedBy,'access-challenge');assert.equal(r.coverage.queuedRemaining,2);assert.equal(r.coverage.complete,false);
+});
