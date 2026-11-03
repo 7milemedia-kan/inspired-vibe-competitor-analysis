@@ -9,6 +9,8 @@
  */
 
 import net from "node:net";
+import { collectEvidenceTrace } from "./evidence-adapter";
+import type { EvidenceDiscoveryResult } from "./evidence-discovery";
 import { discover, readableText, pageLinks, type SocialEvidence, type Source } from "./discovery";
 import type { SocialLinks } from "../shared/social-input";
 import { checkPodcast, searchFounder, type SupplementalInput, type PodcastEvidence, type FounderEvidence } from "./supplemental";
@@ -31,6 +33,9 @@ export type Pillar = {
 };
 
 export type ScoreResult = {
+  /** Supplementary evidence only; never used to calculate points. */
+  evidenceTrace?: EvidenceDiscoveryResult;
+  evidenceTraceStatus?: "available" | "unavailable";
   companyName: string;
   url: string;
   domain: string;
@@ -1014,6 +1019,9 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
   const confidenceNote = "Read " + pagesScanned + " website pages. Evidence supports " + supported + " of 6 signals. Profile metrics may be unavailable; missing evidence is not proof of absence. The score is not a measured market ranking.";
   const standing = provisional ? "Provisional" : "Evidence supported";
   const standingNote = confidenceNote;
+  // Additional evidence is deliberately isolated from discovery.pages and scoring.
+  const evidenceTrace = await collectEvidenceTrace(home.finalUrl, discovery.pages, sitemapLocs, grab).catch(() => undefined);
+
 
   return {
     companyName,
@@ -1042,6 +1050,8 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
     pagesScanned,
     provisional,
     evidenceCoverage,
+    evidenceTrace,
+    evidenceTraceStatus: evidenceTrace ? "available" : "unavailable",
     sources: discovery.sources,
     socialMetrics: discovery.social,
     podcastEvidence,
