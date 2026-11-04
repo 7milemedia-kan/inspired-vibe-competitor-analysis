@@ -1,6 +1,6 @@
 import React, { type FormEvent } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
-import { Logo } from "@/components/brand";
+import { VisibilityLogo, VisibilityStar } from "./visibility-brand";
 
 export interface CompetitiveProfileProps {
   ownUrl: string;
@@ -19,8 +19,8 @@ const heading = { fontFamily: 'Balboa, "Arial Narrow", sans-serif' };
 
 function BrandHeader() {
   return <header className="mx-auto flex max-w-6xl items-center gap-3 px-6 pb-10 pt-7 sm:px-10">
-    <Logo className="h-8 w-8 text-white" />
-    <a href="https://inspiredvibe.com" target="_blank" rel="noopener noreferrer" className="text-xl font-semibold tracking-tight text-white">INSPIRED Vibe</a>
+    <VisibilityStar />
+    <a href="https://inspiredvibe.com" target="_blank" rel="noopener noreferrer" className="min-w-0"><VisibilityLogo /></a>
   </header>;
 }
 
