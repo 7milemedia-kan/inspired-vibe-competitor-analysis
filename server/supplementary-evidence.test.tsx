@@ -14,3 +14,6 @@ test('legacy results omit optional section and collection failure is not absence
  assert.equal(renderToStaticMarkup(<SupplementaryEvidence label="Your company"/>),'');
  const html=renderToStaticMarkup(<SupplementaryEvidence status="unavailable" label="Your company"/>);assert.ok(html.includes('does not mean no evidence exists'));
 });
+test('COUNT LABEL: read count is explicitly supplementary, not total assessment pages',async()=>{
+ const trace=await discoverEvidence('https://brand.test',async url=>({ok:true,status:200,finalUrl:url,body:'Ordinary company content. '.repeat(12)}));const html=renderToStaticMarkup(<SupplementaryEvidence trace={trace} status="available" label="Your company"/>);assert.ok(html.includes('1 supplementary pages read;'));assert.ok(!html.includes('1 pages read;'));
+});

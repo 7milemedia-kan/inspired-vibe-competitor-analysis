@@ -8,10 +8,10 @@ import { pageLinks, readableText } from './discovery';
 import { normalizeSocialLink, SOCIAL_PLATFORMS } from '../shared/social-input';
 
 export type EvidenceFetch = (url: string, timeoutMs: number) => Promise<{ok:boolean; body:string; status:number; finalUrl:string}>;
-export type RetrievalOutcome = 'read'|'http-error'|'fetch-error'|'insufficient-text'|'offsite-redirect'|'access-challenge';
-export type EvidenceSource = {id:string; url:string; finalUrl:string; retrievedAt:string; outcome:RetrievalOutcome; httpStatus:number|null; textHash:string|null; discoveredFrom:string|null};
+export type RetrievalOutcome = 'read'|'http-error'|'fetch-error'|'insufficient-text'|'offsite-redirect'|'access-challenge'|'ambiguous-challenge';
+export type EvidenceSource = {id:string; url:string; finalUrl:string; retrievedAt:string; outcome:RetrievalOutcome; httpStatus:number|null; textHash:string|null; classificationReason?:string; discoveredFrom:string|null};
 export type EvidenceObservation = {id:string; sourceId:string; kind:'page-topic'|'linked-profile'; value:string; excerpt:string; locator:string; attribution:'company-page'|'ownership-unverified'; status:'observed'; extractorVersion:'discovery-v1'};
-export type EvidenceDiscoveryResult = {sources:EvidenceSource[]; observations:EvidenceObservation[]; profileCandidates:{url:string; platform:string; sourceIds:string[]; ownership:'unverified'}[]; coverage:{pagesRead:number; requests:number; queuedRemaining:number; complete:boolean; stoppedBy:'queue-exhausted'|'request-budget'|'time-budget'|'access-challenge'; meaning:string}};
+export type EvidenceDiscoveryResult = {sources:EvidenceSource[]; observations:EvidenceObservation[]; profileCandidates:{url:string; platform:string; sourceIds:string[]; ownership:'unverified'}[]; coverage:{pagesRead:number; requests:number; queuedRemaining:number; complete:boolean; stoppedBy:'queue-exhausted'|'request-budget'|'time-budget'|'access-challenge'|'ambiguous-challenge'; meaning:string}};
 const topic = /\b(work|campaigns?|clients?|customers?|case studies|case study|recognition|awards?|events?|press|news|newsroom|insights?|research|blog|articles?|resources?|leadership|founders?|team|about|podcasts?|episodes?|videos?|webinars?|stories|impact|publications?)\b/i;
 const excluded = /(?:^|\/)(?:logout|signout|unsubscribe|delete|checkout|cart|submit|intake|contact|login|signin|signup|register|request|thank-you)(?:\/|$)|\.(?:pdf|png|jpe?g|svg|zip|mp4|woff2?)$/i;
 const id = (value:string) => createHash('sha256').update(value).digest('hex').slice(0,24);
@@ -21,6 +21,19 @@ function anchors(html:string, base:string) {
  return [...clean.matchAll(/<a\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi)].flatMap(m=>{
   try { const u=new URL(decode(m[2]),base); return [{url:u.href,label:readableText(m[3]).slice(0,240)}]; } catch {return [];}
  });
+}
+export function classifyChallenge(html:string):{state:'clear'|'blocked'|'ambiguous';reason:string} {
+ const visible=html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi,'');
+ const text=readableText(visible);
+ const title=readableText(html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1]??'');
+ const blockingContainer=/\bid\s*=\s*["'](?:challenge-form|cf-challenge[^"']*)["']|\bclass\s*=\s*["'][^"']*\banomaly-modal\b/i.test(visible);
+ if(blockingContainer)return {state:'blocked',reason:'blocking-challenge-container'};
+ const interstitialTitle=/^(?:just a moment[.!…]*|attention required[! ]*(?:\|.*)?|verify (?:you are|you're) human|security (?:check|verification))$/i.test(title.trim());
+ const visibleChallenge=/verify (?:you are|you're) human|checking your browser|performing security verification|enable javascript and cookies to continue|unusual traffic from your computer/i.test(text);
+ const challengeScript=/\/cdn-cgi\/challenge-platform/i.test(html);
+ if(interstitialTitle && (visibleChallenge||challengeScript))return {state:'blocked',reason:'interstitial-title-and-challenge-evidence'};
+ if(interstitialTitle||visibleChallenge||(challengeScript&&text.length<100))return {state:'ambiguous',reason:'possible-interstitial-needs-review'};
+ return {state:'clear',reason:challengeScript?'background-security-script-with-readable-content':'no-blocking-challenge-evidence'};
 }
 export async function discoverEvidence(base:string, fetchPage:EvidenceFetch, options:{maxRequests?:number; maxDurationMs?:number; sitemapUrls?:string[]; now?:()=>number}={}):Promise<EvidenceDiscoveryResult> {
  const root=new URL(base); if(!/^https?:$/.test(root.protocol)||root.username||root.password||root.port||root.search) throw new Error('Use a plain public company URL without credentials, port or query.');
@@ -35,19 +48,20 @@ export async function discoverEvidence(base:string, fetchPage:EvidenceFetch, opt
  for(const url of (options.sitemapUrls??[]).slice(0,2500)) offer(url,null);
  const sources:EvidenceSource[]=[],observations:EvidenceObservation[]=[];
  const profiles=new Map<string,{url:string;platform:string;sourceIds:string[];ownership:'unverified'}>();
- let requests=0, blockedByChallenge=false;
+ let requests=0, blockedByChallenge:false|'access-challenge'|'ambiguous-challenge'=false;
  while(queue.length&&requests<maxRequests&&now()-start<duration){
   queue.sort((a,b)=>Number(a.from===null)-Number(b.from===null));
   const item=queue.shift()!;queued.delete(item.url);seen.add(item.url);requests++;
-  const sourceId=id(item.url);let body='',finalUrl=item.url,httpStatus:number|null=null,outcome:RetrievalOutcome='fetch-error';
+  const sourceId=id(item.url);let body='',finalUrl=item.url,httpStatus:number|null=null,outcome:RetrievalOutcome='fetch-error',classificationReason:string|undefined;
   try {const response=await fetchPage(item.url,Math.min(6000,Math.max(1,duration-(now()-start))));httpStatus=response.status;finalUrl=response.finalUrl;body=response.body;
-   outcome=!response.ok?'http-error':!canonical(finalUrl)?'offsite-redirect':/id=["'](?:challenge-form|cf-challenge)|class=["'][^"']*anomaly-modal|\/cdn-cgi\/challenge-platform/i.test(body)?'access-challenge':readableText(body).length<100?'insufficient-text':'read';
+   const challenge=classifyChallenge(body); classificationReason=challenge.reason;
+   outcome=!response.ok?'http-error':!canonical(finalUrl)?'offsite-redirect':challenge.state==='blocked'?'access-challenge':challenge.state==='ambiguous'?'ambiguous-challenge':readableText(body).length<100?'insufficient-text':'read';
   }catch{/* A failed read is unknown; never an absent signal. */}
   // Never retain credentials or query fragments from a redirect destination.
   try { const publicUrl=new URL(finalUrl);publicUrl.username='';publicUrl.password='';publicUrl.search='';publicUrl.hash='';finalUrl=publicUrl.href;}catch{finalUrl=item.url;}
   const text=outcome==='read'?readableText(body):'';
-  sources.push({id:sourceId,url:item.url,finalUrl,retrievedAt:new Date(now()).toISOString(),outcome,httpStatus,textHash:text?id(text):null,discoveredFrom:item.from});
-  if(outcome==='access-challenge'){blockedByChallenge=true;break;}
+  sources.push({id:sourceId,url:item.url,finalUrl,retrievedAt:new Date(now()).toISOString(),outcome,httpStatus,textHash:text?id(text):null,classificationReason,discoveredFrom:item.from});
+  if(outcome==='access-challenge'||outcome==='ambiguous-challenge'){blockedByChallenge=outcome;break;}
   if(outcome!=='read')continue;
   // A topic excerpt establishes only that text appears on this company page, not the claim's truth.
   const contentText=readableText(body.replace(/<(nav|header|footer)\b[^>]*>[\s\S]*?<\/\1>/gi,''));
@@ -65,6 +79,6 @@ export async function discoverEvidence(base:string, fetchPage:EvidenceFetch, opt
    }
   }
  }
- const stoppedBy=blockedByChallenge?'access-challenge':!queue.length?'queue-exhausted':requests>=maxRequests?'request-budget':'time-budget';
+ const stoppedBy=blockedByChallenge?blockedByChallenge:!queue.length?'queue-exhausted':requests>=maxRequests?'request-budget':'time-budget';
  return {sources,observations,profileCandidates:[...profiles.values()],coverage:{pagesRead:sources.filter(x=>x.outcome==='read').length,requests,queuedRemaining:queue.length,complete:!queue.length&&sources.every(x=>x.outcome==='read'),stoppedBy,meaning:'Completeness covers this discovered queue only, not the entire website or market; missing observations never establish absence.'}};
 }

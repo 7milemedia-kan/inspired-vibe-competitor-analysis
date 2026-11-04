@@ -55,3 +55,15 @@ test('navigation discovery is considered before broad sitemap inventory',async()
 test('site challenge stops queued sitemap and alternate-page requests',async()=>{
  let calls=0;const r=await discoverEvidence('https://brand.test',async url=>{calls++;return {ok:true,status:200,body:'<form id="challenge-form">'+filler+'</form>',finalUrl:url};},{sitemapUrls:['https://brand.test/work','https://brand.test/awards']});assert.equal(calls,1);assert.equal(r.coverage.stoppedBy,'access-challenge');assert.equal(r.coverage.queuedRemaining,2);assert.equal(r.coverage.complete,false);
 });
+test('PASSIVE CLOUDFLARE: ordinary page with background JSD script remains readable',async()=>{
+ const r=await discoverEvidence('https://brand.test',async url=>({ok:true,status:200,finalUrl:url,body:'<title>Brand | Our Work</title>'+filler+'<script src="/cdn-cgi/challenge-platform/scripts/jsd/main.js"></script>'}));assert.equal(r.coverage.pagesRead,1);assert.equal(r.sources[0].outcome,'read');assert.equal(r.sources[0].classificationReason,'background-security-script-with-readable-content');
+});
+test('REAL BLOCK: interstitial title plus challenge evidence stops collection',async()=>{
+ let calls=0;const r=await discoverEvidence('https://brand.test',async url=>{calls++;return {ok:true,status:200,finalUrl:url,body:'<title>Just a moment...</title><p>Checking your browser</p><script src="/cdn-cgi/challenge-platform/a.js"></script>'};},{sitemapUrls:['https://brand.test/work']});assert.equal(calls,1);assert.equal(r.sources[0].outcome,'access-challenge');assert.equal(r.coverage.pagesRead,0);
+});
+test('AMBIGUOUS: possible challenge pauses without treating it as readable or absent',async()=>{
+ const r=await discoverEvidence('https://brand.test',async url=>({ok:true,status:200,finalUrl:url,body:'<title>Brand</title><p>Verify you are human</p>'+filler}));assert.equal(r.sources[0].outcome,'ambiguous-challenge');assert.equal(r.coverage.stoppedBy,'ambiguous-challenge');assert.equal(r.coverage.pagesRead,0);
+});
+test('EMBEDDED WIDGET: ordinary content with a form captcha does not imply blocked page',async()=>{
+ const r=await discoverEvidence('https://brand.test',async url=>({ok:true,status:200,finalUrl:url,body:'<title>Our work</title>'+filler+'<form><div class="cf-turnstile" data-sitekey="public-test-key"></div></form>'}));assert.equal(r.coverage.pagesRead,1);
+});
