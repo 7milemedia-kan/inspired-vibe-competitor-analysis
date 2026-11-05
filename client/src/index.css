@@ -349,3 +349,116 @@
     inset: -1px;
   }
 }
+
+/* Competitive analysis follows the Visibility Engine's delivery-page brand.
+ * Scope these refinements to its header/buttons; do not restyle other tools.
+ */
+@layer components {
+  .visibility-header {
+    width: min(calc(100% - 40px), 1180px);
+    margin-inline: auto;
+    padding-block: 18px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .visibility-brand-lockup {
+    display: flex;
+    min-width: 0;
+    max-width: 100%;
+    align-items: center;
+    gap: inherit;
+  }
+
+  .visibility-header .visibility-logo {
+    width: 180px;
+  }
+
+  .visibility-header .visibility-star {
+    width: 31px;
+  }
+
+  .visibility-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 58px;
+    padding: 15px 30px;
+    border-radius: 4px;
+    background-color: hsl(var(--brand-red));
+    color: white;
+    font-family: Balboa, "Arial Narrow", Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color .2s;
+  }
+
+  .visibility-cta:hover {
+    background-color: #fe424d;
+  }
+
+  .visibility-cta:focus-visible,
+  .visibility-secondary-button:focus-visible {
+    outline: 2px solid hsl(var(--brand-navy));
+    outline-offset: 4px;
+  }
+
+  .visibility-cta-on-dark:focus-visible,
+  .visibility-secondary-button:focus-visible {
+    outline-color: white;
+  }
+
+  .visibility-secondary-button {
+    min-height: 48px;
+    padding: 12px 24px;
+    border: 1px solid rgb(255 255 255 / .5);
+    border-radius: 4px;
+    color: white;
+    font-family: Balboa, "Arial Narrow", Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+  }
+
+  .visibility-secondary-button:hover {
+    background-color: rgb(255 255 255 / .1);
+  }
+
+  @media (max-width: 800px) {
+    .visibility-cta {
+      font-size: 18px;
+    }
+
+    /* The reference's bright hover red is only safe with large bold type.
+     * Keep normal-size mobile labels at a readable 4.5:1 or higher.
+     */
+    .visibility-cta:hover {
+      background-color: #a5262b;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .visibility-header {
+      width: calc(100% - 28px);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .visibility-header .visibility-logo {
+      width: 145px;
+    }
+
+    .visibility-header .visibility-star {
+      width: 25px;
+    }
+  }
+}

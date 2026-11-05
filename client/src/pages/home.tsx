@@ -50,8 +50,8 @@ export default function Home() {
   if (mutation.data && !mutation.isError) return <>
     <CompetitiveResults own={mutation.data.own} competitor={mutation.data.competitor}
       ownUrl={submitted.current.own} competitorUrl={submitted.current.competitor} reviewUrl={REVIEW_URL} />
-    <div className="bg-[#062f40] px-6 pb-8 text-center"><button type="button" onClick={reset}
-      className="rounded border border-white/50 px-5 py-3 text-sm text-white hover:bg-white/10">Compare another company</button></div>
+    <div className="bg-brand-navy px-6 pb-8 text-center"><button type="button" onClick={reset}
+      className="visibility-secondary-button">Compare another company</button></div>
   </>;
   return <CompetitiveProfile ownUrl={ownUrl} competitorUrl={competitorUrl}
     onOwnUrlChange={setOwnUrl} onCompetitorUrlChange={setCompetitorUrl}

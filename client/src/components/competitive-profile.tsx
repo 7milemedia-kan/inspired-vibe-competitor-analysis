@@ -13,12 +13,12 @@ export interface CompetitiveProfileProps {
   error?: string | null;
 }
 
-const navy = "#042d3e";
-const cyan = "#16b7c9";
+const navy = "hsl(var(--brand-navy))";
+const cyan = "hsl(var(--brand-teal))";
 const heading = { fontFamily: 'Balboa, "Arial Narrow", sans-serif' };
 
 function BrandHeader() {
-  return <header className="mx-auto flex max-w-6xl items-center gap-3 px-6 pb-10 pt-7 sm:px-10">
+  return <header className="visibility-header">
     <VisibilityStar />
     <a href="https://inspiredvibe.com" target="_blank" rel="noopener noreferrer" className="min-w-0"><VisibilityLogo /></a>
   </header>;
@@ -51,7 +51,7 @@ export function ProcessingComparison({ ownUrl, competitorUrl }: Pick<Competitive
 export function CompetitiveProfile(props: CompetitiveProfileProps) {
   const { ownUrl, competitorUrl, onOwnUrlChange, onCompetitorUrlChange, onSubmit, isPending, error } = props;
   if (isPending) return <ProcessingComparison ownUrl={ownUrl} competitorUrl={competitorUrl} />;
-  const inputClass = "mt-3 block min-h-12 w-full rounded-sm border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/25";
+  const inputClass = "mt-3 block min-h-12 w-full rounded-sm border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/25";
   return <main className="min-h-screen bg-white" style={{ color: navy }}>
     <section className="relative overflow-hidden text-white" style={{ background: navy }}>
       <BrandHeader />
@@ -59,7 +59,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[.2em]" style={{ color: cyan }}>Competitive Presence Profile</p>
           <h1 className="mt-5 max-w-lg text-4xl font-bold uppercase leading-[1.05] sm:text-5xl lg:text-6xl" style={heading}>You’ve watched the masterclass. Now see how your company compares.</h1>
-          <span className="mt-6 block text-5xl text-red-600" aria-hidden="true">✶</span>
+          <span className="mt-6 block text-5xl text-brand-red" aria-hidden="true">✶</span>
         </div>
         <div className="space-y-5 text-sm leading-relaxed text-white/90 sm:text-base md:pt-8">
           <p>Enter your company’s website and the website of one competitor your buyers would consider with you.</p>
@@ -80,7 +80,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
             <p className="mt-4 font-semibold">Show us where buyers can find you.</p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">Enter your company’s website.</p>
             <div className="mt-7">
-              <label htmlFor="profile-own-url" className="text-sm font-semibold">Your Company’s Website <span className="text-red-600" aria-hidden="true">*</span></label>
+              <label htmlFor="profile-own-url" className="text-sm font-semibold">Your Company’s Website <span className="text-brand-red" aria-hidden="true">*</span></label>
               <input id="profile-own-url" name="ownUrl" data-testid="input-own-url" type="text" inputMode="url" autoComplete="url" required maxLength={300} value={ownUrl} onChange={e => onOwnUrlChange(e.target.value)} placeholder="Your company website" aria-describedby="profile-own-help" className={inputClass} />
               <p id="profile-own-help" className="mt-3 text-xs leading-relaxed text-slate-500">Use the main website buyers visit to learn about your business and your approach.</p>
             </div>
@@ -92,7 +92,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
             <p className="mt-3 text-sm leading-relaxed text-slate-600">This could be a company buyers mention in sales conversations or one competing for the same customers.</p>
             <p className="mt-3 text-sm font-semibold">Your analysis will compare your company with your primary competitor.</p>
             <div className="mt-7">
-              <label htmlFor="profile-competitor-url" className="text-sm font-semibold">Competitor’s Website <span className="text-red-600" aria-hidden="true">*</span></label>
+              <label htmlFor="profile-competitor-url" className="text-sm font-semibold">Competitor’s Website <span className="text-brand-red" aria-hidden="true">*</span></label>
               <input id="profile-competitor-url" name="competitorUrl" data-testid="input-url" type="text" inputMode="url" autoComplete="url" required maxLength={300} value={competitorUrl} onChange={e => onCompetitorUrlChange(e.target.value)} placeholder="Competitor website" aria-describedby="profile-competitor-help" className={inputClass} />
               <p id="profile-competitor-help" className="mt-3 text-xs leading-relaxed text-slate-500">Use the website buyers would visit to evaluate this company.</p>
             </div>
@@ -104,7 +104,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
         <h2 className="text-3xl font-bold uppercase sm:text-4xl" style={heading}>Ready to see how you compare?</h2>
         <p className="mt-5 text-sm leading-relaxed text-white/85">Check that both websites are correct.</p>
         <p className="mt-2 text-sm text-white/85">Then run your side-by-side comparison.</p>
-        <button type="submit" data-testid="button-score" className="mx-auto mt-7 flex min-h-12 w-full max-w-xs items-center justify-between gap-5 rounded-sm bg-[#c6282e] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#a61d25] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Compare My Company <ArrowRight size={22} aria-hidden="true" /></button>
+        <button type="submit" data-testid="button-score" className="visibility-cta visibility-cta-on-dark mx-auto mt-7 w-full max-w-xs">Compare My Company <ArrowRight size={22} aria-hidden="true" /></button>
         <p className="mt-5 text-xs font-semibold">Your company. One competitor. The same scoring model, side by side.</p>
         <p className="mt-3 text-xs leading-relaxed text-white/70">Your personalized Competitive Presence Analysis is already included with your Masterclass purchase.</p>
       </section>
