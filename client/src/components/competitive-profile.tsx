@@ -25,7 +25,7 @@ function BrandHeader() {
 }
 
 export function ProcessingComparison({ ownUrl, competitorUrl }: Pick<CompetitiveProfileProps, "ownUrl" | "competitorUrl">) {
-  return <main className="min-h-screen bg-white" style={{ color: navy }}>
+  return <main className="competitive-brand min-h-screen bg-white" style={{ color: navy }}>
     <section style={{ background: navy }} className="text-white">
       <BrandHeader />
       <div className="mx-auto max-w-5xl px-6 pb-16 pt-6 sm:px-10 sm:pb-24" role="status" aria-live="polite">
@@ -52,14 +52,14 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
   const { ownUrl, competitorUrl, onOwnUrlChange, onCompetitorUrlChange, onSubmit, isPending, error } = props;
   if (isPending) return <ProcessingComparison ownUrl={ownUrl} competitorUrl={competitorUrl} />;
   const inputClass = "mt-3 block min-h-12 w-full rounded-sm border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/25";
-  return <main className="min-h-screen bg-white" style={{ color: navy }}>
-    <section className="relative overflow-hidden text-white" style={{ background: navy }}>
+  return <main className="competitive-brand min-h-screen bg-white" style={{ color: navy }}>
+    <section className="competitive-hero relative overflow-hidden text-white" style={{ background: navy }}>
       <BrandHeader />
-      <div className="mx-auto grid max-w-6xl gap-8 px-6 pb-24 pt-4 sm:px-10 sm:pt-8 md:grid-cols-2 md:gap-14 md:pb-32">
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 pb-14 pt-8 sm:px-10 sm:pt-8 md:grid-cols-2 md:gap-14 md:pb-20">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[.2em]" style={{ color: cyan }}>Competitive Presence Profile</p>
-          <h1 className="mt-5 max-w-lg text-4xl font-bold uppercase leading-[1.05] sm:text-5xl lg:text-6xl" style={heading}>You’ve watched the masterclass. Now see how your company compares.</h1>
-          <span className="mt-6 block text-5xl text-brand-red" aria-hidden="true">✶</span>
+          <h1 className="mt-5 max-w-lg text-4xl font-bold uppercase leading-[1.05] sm:text-5xl lg:text-6xl" style={heading}>You’ve watched the masterclass. <span className="competitive-highlight">Now see how your company compares.</span></h1>
+          <div className="mt-6"><VisibilityStar /></div>
         </div>
         <div className="space-y-5 text-sm leading-relaxed text-white/90 sm:text-base md:pt-8">
           <p>Enter your company’s website and the website of one competitor your buyers would consider with you.</p>
@@ -67,7 +67,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
           <p className="font-semibold text-white">You don’t need to diagnose the problem first. Start with the two websites below. We’ll take it from there.</p>
         </div>
       </div>
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-12 w-full sm:h-20" aria-hidden="true"><path d="M0 50 C400 -55 850 165 1440 35 L1440 100 L0 100Z" fill="white" stroke={cyan} strokeWidth="6" /></svg>
+
     </section>
 
     <form onSubmit={onSubmit} noValidate>

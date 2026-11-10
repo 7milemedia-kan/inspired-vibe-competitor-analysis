@@ -462,3 +462,30 @@
     }
   }
 }
+
+
+/* November 2026 approved funnel design. Scoped to competitive analysis only. */
+.competitive-brand { --brand-navy: 199.048 94.030% 13.137%; --brand-red: 357.945 61.864% 46.275%; }
+.competitive-brand .visibility-header { width: 100%; padding: 16px max(24px, calc((100% - 1160px) / 2)); background: #193540; border-bottom: 1px solid rgb(255 255 255 / .16); gap: 16px; min-height: 72px; }
+.competitive-brand .visibility-header > .visibility-star,
+.competitive-brand .visibility-brand-lockup > .visibility-star { display: none; }
+.competitive-brand .visibility-header .visibility-logo { width: 162px; }
+.competitive-brand .visibility-header .visibility-brand-lockup { gap: 0; }
+.competitive-brand .competitive-hero { border-left: 6px solid #bf2d32; }
+.competitive-brand .competitive-highlight { color: #ef7377; }
+.competitive-brand h1, .competitive-brand h2, .competitive-brand h3 { font-family: Balboa, 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: .005em; }
+.competitive-brand h1 { line-height: 1.04; }
+.competitive-brand .visibility-cta { min-height: 52px; border-radius: 999px; padding: 15px 26px; box-shadow: 0 10px 24px rgb(191 45 50 / .20); letter-spacing: .06em; font-size: 18px; }
+.competitive-brand .visibility-cta:hover { background: #a2252a; }
+.competitive-brand .visibility-secondary-button { border-radius: 999px; }
+.competitive-brand form > section:first-child { margin-top: 32px; margin-bottom: 32px; background: #f4eeed; border-radius: 20px; }
+.competitive-brand input { border-radius: 6px; }
+.competitive-results-brand { background: #f4eeed; }
+.competitive-results-brand > main > section:first-child { border-left: 4px solid #bf2d32; padding-left: 24px; margin-top: 32px; }
+.competitive-results-brand footer { border-top-color: #bf2d32; }
+@media (max-width: 640px) {
+ .competitive-brand .visibility-header { padding-inline: 20px; }
+ .competitive-brand .visibility-header .visibility-logo { width: 145px; }
+ .competitive-brand form > section:first-child { margin: 0; border-radius: 0; }
+ .competitive-results-brand > main > section:first-child { padding-left: 16px; }
+}

@@ -20,8 +20,8 @@ test('profile, processing and results share compact headers and retain genuine l
     assert.ok(html.includes('visibility-header'));
     assert.ok(html.includes('visibility-logo'));
     assert.ok(html.includes('visibility-star'));
-    assert.ok(html.includes('/hubfs/logiimg.png?'));
-    assert.ok(html.includes('/hubfs/starimg.png?'));
+    assert.ok(html.includes('/brand/iv_logo_white.svg'));
+    assert.ok(html.includes('/brand/IV-star.svg'));
   }
 });
 

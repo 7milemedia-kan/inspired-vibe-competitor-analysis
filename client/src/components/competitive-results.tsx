@@ -76,7 +76,7 @@ export function CompetitiveResults({ own, competitor, ownUrl, reviewUrl, onReset
     { title: "Where your company scores higher", items: ownHigher, own: true, icon: ArrowUp },
     { title: "Where your competitor scores higher", items: competitorHigher, own: false, icon: ArrowUp },
   ];
-  return <div className="bg-[#faf8f6] text-brand-navy" data-testid="competitive-results">
+  return <div className="competitive-brand competitive-results-brand bg-[#faf8f6] text-brand-navy" data-testid="competitive-results">
     <header className="bg-brand-navy text-white"><div className="visibility-header flex-wrap justify-between"><div className="visibility-brand-lockup"><VisibilityStar /><a className="min-w-0" href="https://inspiredvibe.com/"><VisibilityLogo /></a></div><span className="text-[10px] uppercase tracking-[.2em]">More than marketing. Momentum.</span></div></header>
     <main className="mx-auto max-w-6xl px-5 sm:px-8">
       <section className="py-12 sm:py-16">
