@@ -7,7 +7,7 @@ import { CompetitiveProfile, ProcessingComparison } from "@/components/competiti
 import { CompetitiveResults } from "@/components/competitive-results";
 import type { ScoreResult } from "../../../server/analyze";
 
-const REVIEW_URL = "https://inspiredvibe.com/contact-us/";
+const REVIEW_URL = "https://buildyourbusiness.inspiredvibe.com/m-ca-booking";
 type Result = ScoreResult & { scanId?: number | null };
 
 /** Step 4 and 5 presentation. The existing scorer and stored scan format remain unchanged. */

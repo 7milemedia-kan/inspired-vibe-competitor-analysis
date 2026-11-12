@@ -6,7 +6,7 @@ import { CompetitiveResults, signalScore, normalizedSignalScore, type Comparison
 import type { Pillar } from './analyze';
 const pillar = (earned = .5, status: Pillar['status'] = 'weak'): Pillar => ({key:'social', label:'Social Presence',earned,max:1.25,status,summary:'Company links to public social profiles.',consequence:'',evidence:['Website-linked profile found.']});
 const result = (p: Pillar): ComparisonResult => ({companyName:'Example',url:'https://example.com/',domain:'example.com',pillars:[p],sources:[{url:'https://example.com/',kind:'website',status:'read'}],socialMetrics:[],confidenceNote:'Evidence is limited.',score:2} as unknown as ComparisonResult);
-const render = (own: ComparisonResult | null, competitor: ComparisonResult) => renderToStaticMarkup(<CompetitiveResults own={own} competitor={competitor} ownUrl="https://own.example/" reviewUrl="https://inspiredvibe.com/contact-us/"/>);
+const render = (own: ComparisonResult | null, competitor: ComparisonResult) => renderToStaticMarkup(<CompetitiveResults own={own} competitor={competitor} ownUrl="https://own.example/" reviewUrl="https://buildyourbusiness.inspiredvibe.com/m-ca-booking"/>);
 test('signal score preserves existing weighted points and rejects unverified numbers', () => {
  assert.equal(signalScore(pillar(.5)), .5);
  assert.equal(signalScore(pillar(0,'unverified')), null);
@@ -21,7 +21,10 @@ test('equal verified scores render normalized display without changing weighted 
  assert.ok(html.includes('No higher score is established'));
  assert.ok(!html.includes('Score mapping pending'));
  assert.ok(!html.includes('Each area uses the same 1–10 scale'));
- assert.ok(html.includes('Interpretation video coming soon'));
+ assert.ok(html.includes('https://player.vimeo.com/video/1246418242?h=446ae10bdc'));
+ assert.ok(!html.includes('Interpretation video coming soon'));
+ assert.ok(html.includes('aspect-video'));
+ assert.equal((html.match(/href="https:\/\/buildyourbusiness.inspiredvibe.com\/m-ca-booking"/g)||[]).length,2);
  assert.ok(!html.includes('<video'));
 });
 test('missing own evidence is not scored and never borrowed from the competitor', () => {
