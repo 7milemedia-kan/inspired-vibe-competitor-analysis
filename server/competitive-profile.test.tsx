@@ -21,6 +21,6 @@ test('validation error retains form, processing shows two websites with no simul
  const processing = renderToStaticMarkup(<ProcessingComparison ownUrl="https://own.example/" competitorUrl="https://competitor.example/" />);
  assert.ok(processing.includes('https://own.example/'));
  assert.ok(processing.includes('https://competitor.example/'));
- assert.ok(processing.includes('Comparing your company and your selected competitor…'));
+ assert.ok(processing.replace(/<[^>]+>/g, '').includes('Comparing your company and your selected competitor…'));
  assert.ok(!processing.includes('<form'));
 });

@@ -489,3 +489,19 @@
  .competitive-brand form > section:first-child { margin: 0; border-radius: 0; }
  .competitive-results-brand > main > section:first-child { padding-left: 16px; }
 }
+
+/* Targeted November 12 layout refinements; scoring and the two-input flow are unchanged. */
+.competitive-brand .visibility-cta { white-space: normal; text-align: center; line-height: 1.25; overflow-wrap: anywhere; }
+.competitive-results-brand > main > section:first-child { padding-top: 16px; padding-bottom: 28px; }
+.competitive-results-brand .comparison-mobile-label { display: none; }
+.competitive-results-brand section { min-width: 0; }
+@media (max-width: 639px) {
+ .competitive-results-brand .comparison-table table,
+ .competitive-results-brand .comparison-table tbody { display: block; }
+ .competitive-results-brand .comparison-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+ .competitive-results-brand .comparison-table tr { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+ .competitive-results-brand .comparison-table th[scope="row"] { grid-column: 1 / -1; padding: 16px 16px 4px; }
+ .competitive-results-brand .comparison-table td { min-width: 0; padding: 12px 16px 18px; }
+ .competitive-results-brand .comparison-mobile-label { display: block; min-height: 2.7em; margin-bottom: 6px; font-size: 11px; line-height: 1.35; font-weight: 700; }
+ .competitive-results-brand .visibility-cta { width: 100%; font-size: 17px; padding: 15px 20px; }
+}

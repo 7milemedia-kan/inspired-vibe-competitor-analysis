@@ -28,10 +28,10 @@ export function ProcessingComparison({ ownUrl, competitorUrl }: Pick<Competitive
   return <main className="competitive-brand min-h-screen bg-white" style={{ color: navy }}>
     <section style={{ background: navy }} className="text-white">
       <BrandHeader />
-      <div className="mx-auto max-w-5xl px-6 pb-16 pt-6 sm:px-10 sm:pb-24" role="status" aria-live="polite">
+      <div className="mx-auto max-w-6xl px-6 pb-12 pt-8 sm:px-10 sm:pb-16" role="status" aria-live="polite">
         <p className="text-xs font-semibold uppercase tracking-[.2em]" style={{ color: cyan }}>Competitive Presence Analysis</p>
         <LoaderCircle className="mt-8 h-10 w-10 animate-spin" aria-hidden="true" style={{ color: cyan }} />
-        <h1 className="mt-5 max-w-3xl text-4xl font-bold uppercase leading-tight sm:text-6xl" style={heading}>Comparing your company and your selected competitor…</h1>
+        <h1 className="mt-5 max-w-3xl text-4xl font-bold uppercase leading-tight sm:text-6xl" style={heading}>Comparing your company <span className="competitive-highlight">and your selected competitor…</span></h1>
         <p className="mt-7 text-base">Your details have been submitted.</p>
         <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/85">We’re reviewing all available public information for your company and your selected competitor using the same scoring criteria.</p>
         <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/85">The comparison will give you a starting point for understanding what buyers can learn before they speak with your team.</p>
