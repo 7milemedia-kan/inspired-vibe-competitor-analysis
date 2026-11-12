@@ -14,7 +14,7 @@ export interface CompetitiveProfileProps {
 }
 
 const navy = "hsl(var(--brand-navy))";
-const cyan = "hsl(var(--brand-teal))";
+const accent = "hsl(var(--brand-red))";
 const heading = { fontFamily: 'Balboa, "Arial Narrow", sans-serif' };
 
 function BrandHeader() {
@@ -29,8 +29,8 @@ export function ProcessingComparison({ ownUrl, competitorUrl }: Pick<Competitive
     <section style={{ background: navy }} className="text-white">
       <BrandHeader />
       <div className="mx-auto max-w-6xl px-6 pb-12 pt-8 sm:px-10 sm:pb-16" role="status" aria-live="polite">
-        <p className="text-xs font-semibold uppercase tracking-[.2em]" style={{ color: cyan }}>Competitive Presence Analysis</p>
-        <LoaderCircle className="mt-8 h-10 w-10 animate-spin" aria-hidden="true" style={{ color: cyan }} />
+        <p className="text-sm font-semibold uppercase tracking-[.16em] text-white" style={heading}>Competitive Presence Analysis</p>
+        <LoaderCircle className="mt-8 h-10 w-10 animate-spin" aria-hidden="true" style={{ color: accent }} />
         <h1 className="mt-5 max-w-3xl text-4xl font-bold uppercase leading-tight sm:text-6xl" style={heading}>Comparing your company <span className="competitive-highlight">and your selected competitor…</span></h1>
         <p className="mt-7 text-base">Your details have been submitted.</p>
         <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/85">We’re reviewing all available public information for your company and your selected competitor using the same scoring criteria.</p>
@@ -43,7 +43,7 @@ export function ProcessingComparison({ ownUrl, competitorUrl }: Pick<Competitive
         <div><dt className="text-sm font-semibold">Your company</dt><dd className="mt-2 break-all text-sm">{ownUrl}</dd></div>
         <div><dt className="text-sm font-semibold">Your selected competitor</dt><dd className="mt-2 break-all text-sm">{competitorUrl}</dd></div>
       </dl>
-      <p className="mt-9 border-l-2 pl-4 text-sm leading-relaxed" style={{ borderColor: cyan }}>The comparison looks at what is publicly available, not everything either company knows or delivers.</p>
+      <p className="mt-9 border-l-2 pl-4 text-sm leading-relaxed" style={{ borderColor: accent }}>The comparison looks at what is publicly available, not everything either company knows or delivers.</p>
     </section>
   </main>;
 }
@@ -57,7 +57,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
       <BrandHeader />
       <div className="mx-auto grid max-w-6xl gap-8 px-6 pb-14 pt-8 sm:px-10 sm:pt-8 md:grid-cols-2 md:gap-14 md:pb-20">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white" style={heading}>Competitive Presence Analysis</p>
+          <p className="text-sm font-semibold uppercase tracking-[.16em] text-white" style={heading}>Competitive Presence Analysis</p>
           <h1 className="mt-5 max-w-lg text-4xl font-bold uppercase leading-[1.05] sm:text-5xl lg:text-6xl" style={heading}>You’ve watched the masterclass. <span className="competitive-highlight">Now see how your company compares.</span></h1>
           <div className="mt-6"><VisibilityStar /></div>
         </div>
@@ -85,7 +85,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
               <p id="profile-own-help" className="mt-3 text-xs leading-relaxed text-slate-500">Use the main website buyers visit to learn about your business and your approach.</p>
             </div>
           </section>
-          <section className="flex flex-col border-t-[3px] pt-5" style={{ borderColor: cyan }}>
+          <section className="flex flex-col border-t-[3px] pt-5" style={{ borderColor: accent }}>
             <h3 className="text-3xl font-bold uppercase" style={heading}>Your selected competitor</h3>
             <p className="mt-4 font-semibold">Who do buyers consider alongside you?</p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">Choose one company that a customer would consider as a relevant alternative to your business, not simply the largest or most recognizable name in your industry.</p>
@@ -110,7 +110,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
       </section>
     </form>
     <section className="mx-auto grid max-w-6xl gap-7 px-6 py-12 sm:px-10 md:grid-cols-[1fr_2fr] md:gap-16 md:py-16">
-      <div><h2 className="max-w-xs text-3xl font-bold uppercase leading-tight" style={heading}>What your scores mean</h2><div className="mt-5 h-1 w-10" style={{ background: cyan }} /></div>
+      <div><h2 className="max-w-xs text-3xl font-bold uppercase leading-tight" style={heading}>What your scores mean</h2><div className="mt-5 h-1 w-10" style={{ background: accent }} /></div>
       <div className="space-y-4 text-sm leading-relaxed text-slate-600">
         <p>Your results compare what buyers can find and understand about your company and your selected competitor before speaking with sales. They reflect the public information available for review, not a rating of your product quality, your team’s expertise, or your sales performance.</p>
         <p>A lower score is a reason to look more closely at the public evidence. It is not proof that another company is better.</p>

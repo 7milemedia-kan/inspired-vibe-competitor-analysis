@@ -505,3 +505,17 @@
  .competitive-results-brand .comparison-mobile-label { display: block; min-height: 2.7em; margin-bottom: 6px; font-size: 11px; line-height: 1.35; font-weight: 700; }
  .competitive-results-brand .visibility-cta { width: 100%; font-size: 17px; padding: 15px 20px; }
 }
+
+/* Competitive analysis: lander-aligned hierarchy, never changes scoring. */
+.competitive-brand h1 { font-size: clamp(2.75rem, 4.2vw, 4rem); line-height: 1.05; }
+.competitive-brand h2 { line-height: 1.12; }
+.competitive-brand .text-sm { font-size: 1rem; line-height: 1.65; }
+.competitive-brand .text-xs { font-size: .875rem; line-height: 1.55; }
+.competitive-brand .text-slate-500 { color: #475569; }
+.competitive-brand form > section:first-child { background: white; border-radius: 0; }
+.competitive-brand .visibility-cta { letter-spacing: .035em; box-shadow: none; }
+.competitive-brand h1, .competitive-brand h2, .competitive-brand h3 { overflow-wrap: break-word; }
+.competitive-results-brand .comparison-mobile-label { font-size: .875rem; }
+@media (min-width: 640px) {
+ .competitive-brand .competitive-hero .space-y-5 { font-size: 1.0625rem; line-height: 1.7; }
+}
