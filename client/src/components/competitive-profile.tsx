@@ -57,7 +57,7 @@ export function CompetitiveProfile(props: CompetitiveProfileProps) {
       <BrandHeader />
       <div className="mx-auto grid max-w-6xl gap-8 px-6 pb-14 pt-8 sm:px-10 sm:pt-8 md:grid-cols-2 md:gap-14 md:pb-20">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[.2em]" style={{ color: cyan }}>Competitive Presence Profile</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white">Competitive Presence Profile</p>
           <h1 className="mt-5 max-w-lg text-4xl font-bold uppercase leading-[1.05] sm:text-5xl lg:text-6xl" style={heading}>You’ve watched the masterclass. <span className="competitive-highlight">Now see how your company compares.</span></h1>
           <div className="mt-6"><VisibilityStar /></div>
         </div>
