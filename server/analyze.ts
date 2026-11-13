@@ -9,6 +9,7 @@
  */
 
 import net from "node:net";
+import { discoverFounderFootprint, leadershipPodcastPoints, type FounderFootprint } from "./founder-footprint";
 import { collectEvidenceTrace } from "./evidence-adapter";
 import type { EvidenceDiscoveryResult } from "./evidence-discovery";
 import { discover, readableText, pageLinks, type SocialEvidence, type Source } from "./discovery";
@@ -69,6 +70,7 @@ export type ScoreResult = {
   socialMetrics: SocialEvidence[];
   podcastEvidence: PodcastEvidence | null;
   founderEvidence: FounderEvidence | null;
+  founderFootprint?: FounderFootprint;
 };
 
 /* ------------------------------------------------------------------ */
@@ -470,7 +472,9 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
     ...matchAllValues(p.html, /<time[^>]+datetime=["']([^"']+)["']/gi),
   ]))].map(Date.parse).filter(n => Number.isFinite(n) && n <= Date.now());
   const recentPublications = publicationDates.filter(n => Date.now() - n <= 180 * 86400000).length;
-  const publicMetrics = discovery.social.flatMap(p => p.metrics);
+  const founderFootprint = await discoverFounderFootprint(home.finalUrl, discovery.pages, grab).catch(() => ({version:'founder-v1' as const,people:[],status:'unavailable' as const,requests:0,limited:true,note:'Leadership enrichment could not finish; existing company evidence remains available.'}));
+  const leadershipProfiles = founderFootprint.people.flatMap(person => person.profiles);
+  const publicMetrics = [...discovery.social.flatMap(p => p.metrics), ...leadershipProfiles.flatMap(p => p.metrics)];
 
   /* ================================================================
      PILLAR 1 — Social presence (max 2.5)
@@ -484,15 +488,19 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
     TikTok: /tiktok\.com\/@[a-z0-9_.]{2,}/i,
   };
   const linkedUrls = discovery.pages.flatMap(p => pageLinks(p.html, p.url)).join("\n");
-  const socialFound = Object.entries(socialMap)
+  const websiteSocialFound = Object.entries(socialMap)
     .filter(([name, re]) => (name === "YouTube" ? discovery.social.some(p => p.platform === "youtube" && (p.linkedFromWebsite || p.metrics.length > 0)) : re.test(linkedUrls)) || discovery.social.some(p => p.metrics.length > 0 && ({ instagram: "Instagram", youtube: "YouTube", tiktok: "TikTok" }[p.platform]) === name))
     .map(([k]) => k);
 
+  const platformNames: Record<string,string> = {instagram:'Instagram',youtube:'YouTube',tiktok:'TikTok',linkedin:'LinkedIn',x:'X / Twitter',facebook:'Facebook'};
+  const founderSocialFound = leadershipProfiles.map(p => platformNames[p.platform]).filter(Boolean);
+  const socialFound = [...new Set([...websiteSocialFound, ...founderSocialFound])];
   const hasLinkedIn = socialFound.includes("LinkedIn");
   let socialPts = 0;
   const socialEv: string[] = [];
   const socialPos: string[] = [];
   const socialNeg: string[] = [];
+  if (leadershipProfiles.length) socialEv.push('Includes company-attributed founder/leadership profiles shown separately in the report; these are not asserted to be company-owned accounts.');
 
   if (socialFound.length === 0) {
     socialEv.push("No social profiles detected in the pages read");
@@ -504,8 +512,8 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
     );
     if (hasLinkedIn) {
       socialPts += 0.3;
-      socialEv.push("LinkedIn company page present — the primary B2B authority channel");
-      socialPos.push("a LinkedIn company page, the primary B2B authority channel");
+      socialEv.push("LinkedIn profile present in company or associated leadership evidence");
+      socialPos.push("a company-linked or leadership-associated LinkedIn profile");
     } else {
       socialEv.push("A LinkedIn company profile link was not detected");
       socialNeg.push("a LinkedIn company page");
@@ -542,6 +550,7 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
   if (namedLeadership && socialFound.length) { socialEffPts += 0.15; socialEffEv.push("Named leadership and social distribution links appear on the scanned website."); }
   if (recentPublications >= 2 && socialFound.length) { socialEffPts += 0.2; socialEffEv.push("Multiple dated publications and social distribution links found; social posting cadence remains unverified."); }
   socialEffPts = Math.min(1.25, socialEffPts);
+  if (leadershipProfiles.some(p => p.metrics.length)) socialEffEv.push('Public counts include attributed leadership profiles; the maximum observed audience is used, never a sum across people/platforms or a claim of brand lift.');
   socialEffEv.push("Engagement rate, watch time and organic-versus-paid reach are not available from this scan.");
   const socialEffSummary = socialEffPts > 0
     ? "Publishing and distribution evidence found. Profile counts are shown separately when extractable; superior performance is not inferred."
@@ -763,6 +772,14 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
       if (podcastEvidence.latestEpisode) podEv.push(`Latest readable episode date: ${podcastEvidence.latestEpisode.slice(0, 10)}`);
     }
   }
+  // Attributed leadership podcast hubs reuse the existing evidence criteria, never stack.
+  for (const person of founderFootprint.people) for (const show of person.podcasts) {
+    const points = leadershipPodcastPoints(show);
+    podPts = Math.max(podPts, points);
+    podNeg.length = 0;
+    podPos.push(`a podcast hub on ${person.name}'s corroborated personal website`);
+    podEv.push(`Leadership-associated podcast: ${show.url}; personal-site association: ${show.sourceUrl}; company role: ${person.sourceUrl}. Company ownership and brand lift are not established. ${show.note}`);
+  }
   podPts = Math.max(0, Math.min(1.5, podPts));
   const podSummary = summarize(podPos, podNeg, "No podcast — owned or guest — was detected.");
 
@@ -773,7 +790,7 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
   const vidEv: string[] = [];
   const vidPos: string[] = [];
   const vidNeg: string[] = [];
-  const ytChannel = discovery.social.some(p => p.platform === "youtube" && (p.linkedFromWebsite || p.metrics.length > 0));
+  const ytChannel = discovery.social.some(p => p.platform === "youtube" && (p.linkedFromWebsite || p.metrics.length > 0)) || leadershipProfiles.some(p => p.platform === "youtube");
   const embeds = new Set(matchAllValues(allHtml,
     /((?:youtube(?:-nocookie)?\.com\/embed\/|youtu\.be\/|player\.vimeo\.com\/video\/|vimeo\.com\/|fast\.wistia\.(?:com|net)\/embed\/(?:iframe|medias)\/|loom\.com\/(?:share|embed)\/)[a-z0-9_-]+)/gi)).size;
   const nativeVideo = count(allHtml, /<video[\s>]/gi);
@@ -782,7 +799,7 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
   if (ytChannel) {
     vidPts += 0.6;
     vidEv.push("YouTube channel linked or supplied; association is shown in profile evidence");
-    vidPos.push("an owned YouTube channel");
+    vidPos.push("a company-linked or attributed leadership YouTube channel");
   } else {
     vidNeg.push("an owned video channel");
   }
@@ -989,7 +1006,7 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
         }.`
       : "Content: no blog or resource hub found."
   );
-  presenceNotes.push(podcastUrl || podPlatform ? "Podcast: show or distribution link found; see cadence evidence." : "Podcast: not verified.");
+  presenceNotes.push(podcastUrl || podPlatform || founderFootprint.people.some(person => person.podcasts.length > 0) ? "Podcast: company-linked or leadership-associated show evidence found; see attribution and cadence evidence." : "Podcast: not verified.");
   presenceNotes.push(ytChannel || embeds > 0 ? "Video: in use." : "Video: none detected.");
   presenceNotes.push(
     reviewSites.length ? `Review platforms: ${reviewSites.join(", ")}.` : "Review platforms: not verified."
@@ -1014,7 +1031,7 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
   const supported = pillars.filter(p => p.status !== "unverified").length;
   const evidenceCoverage = Math.round(supported / pillars.length * 100);
   const hasMissingMetrics = !discovery.social.length || discovery.social.some(p => !p.metrics.length);
-  const provisional = supported < 6 || hasMissingMetrics || discovery.social.some(p => p.supplied && !p.linkedFromWebsite) || discovery.sources.some(p => p.status === "unavailable") || !!(podcastEvidence && (!podcastEvidence.verified || !podcastEvidence.linkedFromWebsite)) || !!(founderEvidence && (!founderEvidence.companyMentionsName || founderEvidence.status !== "sources-found"));
+  const provisional = founderFootprint.people.length > 0 || founderFootprint.limited || supported < 6 || hasMissingMetrics || discovery.social.some(p => p.supplied && !p.linkedFromWebsite) || discovery.sources.some(p => p.status === "unavailable") || !!(podcastEvidence && (!podcastEvidence.verified || !podcastEvidence.linkedFromWebsite)) || !!(founderEvidence && (!founderEvidence.companyMentionsName || founderEvidence.status !== "sources-found"));
   const confidence: ScoreResult["confidence"] = supported < 4 ? "Limited" : provisional ? "Moderate" : "High";
   const confidenceNote = "Read " + pagesScanned + " website pages. Evidence supports " + supported + " of 6 signals. Profile metrics may be unavailable; missing evidence is not proof of absence. The score is not a measured market ranking.";
   const standing = provisional ? "Provisional" : "Evidence supported";
@@ -1056,7 +1073,9 @@ export async function analyze(inputUrl: string, socialLinks: SocialLinks = {}, s
     socialMetrics: discovery.social,
     podcastEvidence,
     founderEvidence,
+    founderFootprint,
   };
 }
+
 
 
